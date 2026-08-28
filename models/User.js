@@ -9,6 +9,13 @@ const userSchema = new mongoose.Schema(
       enum: ["super_admin", "admin", "user"],
       default: "user",
     },
+    deleteStatus: {
+      type: String,
+      enum: ["none", "pending", "rejected"],
+      default: "none",
+    },
+    deleteRequestedAt: { type: Date, default: null },
+    deleteReason: { type: String, default: "" },
   },
   { timestamps: true }
 );

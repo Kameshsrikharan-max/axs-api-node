@@ -2,7 +2,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const User = require("../models/User");
 
-const SUPER_ADMIN_EMAIL = "srikharankamesh@gmail.com"; 
+const SUPER_ADMIN_EMAIL = "srikharankamesh@gmail.com";
 const SUPER_ADMIN_NAME = "Srikharan";
 
 async function seed() {
@@ -10,7 +10,7 @@ async function seed() {
 
   const result = await User.findOneAndUpdate(
     { email: SUPER_ADMIN_EMAIL },
-    { name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: "super_admin" },
+    { name: SUPER_ADMIN_NAME, email: SUPER_ADMIN_EMAIL, role: "superadmin" },
     { upsert: true, new: true }
   );
 
