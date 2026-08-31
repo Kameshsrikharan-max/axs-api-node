@@ -5,10 +5,10 @@ const deleteRequestController = require("../service/deleteRequest.controller");
 
 const router = express.Router();
 
-// Any logged-in user requests deletion of their own account
+
 router.post("/account/delete-request", authenticate, deleteRequestController.requestDelete);
 
-// Super admin only: view + resolve pending requests
+
 router.get(
   "/admin/delete-requests",
   authenticate,

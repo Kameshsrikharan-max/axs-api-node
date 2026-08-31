@@ -44,12 +44,4 @@ async function deleteUserById(userId) {
   return User.findByIdAndDelete(userId);
 }
 
-module.exports = {
-  findByEmail,
-  findById,
-  createUser,
-  markDeleteRequested,
-  clearDeleteRequest,
-  findPendingDeleteRequests,
-  deleteUserById,
-};
+module.exports = {findByEmail,findById,createUser,markDeleteRequested,clearDeleteRequest,findPendingDeleteRequests,deleteUserById,};

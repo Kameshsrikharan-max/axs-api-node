@@ -14,11 +14,36 @@ async function verifyOtp(req, res, next) {
   try {
     const email = (req.body.email || "").trim();
     const otp = (req.body.otp || "").trim();
-    const { user, token } = await authService.verifyLoginOtp(email, otp);
+    const result = await authService.verifyLoginOtp(email, otp);
+
+    if (result.needsSignup) {
+      return res.json({
+        success: true,
+        needsSignup: true,
+        email: result.email,
+        signupToken: result.signupToken,
+      });
+    }
+
+    res.json({
+      success: true,
+      needsSignup: false,
+      user: result.user,
+      token: result.token,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function completeSignup(req, res, next) {
+  try {
+    const { signupToken, name, phone } = req.body;
+    const { user, token } = await authService.completeSignup(signupToken, { name, phone });
     res.json({ success: true, user, token });
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { sendOtp, verifyOtp };
+module.exports = { sendOtp, verifyOtp, completeSignup };

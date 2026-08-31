@@ -44,9 +44,5 @@ async function rejectDeletion(userId) {
   return updated;
 }
 
-module.exports = {
-  requestDeletion,
-  listPendingRequests,
-  approveDeletion,
-  rejectDeletion,
+module.exports = {requestDeletion,listPendingRequests,approveDeletion,rejectDeletion,
 };
