@@ -34,9 +34,6 @@ const photographerProfileSchema = new mongoose.Schema(
       state: { type: String, default: "" },
       country: { type: String, default: "" },
       postalCode: { type: String, default: "" },
-      // File uploads aren't wired up yet on the frontend (media is dropped
-      // before the autosave draft is serialized) — these are placeholders
-      // expecting URLs once a file-upload endpoint exists.
       media: { type: [String], default: [] },
       service: { type: String, default: "" },
       specializations: { type: [String], default: [] },
