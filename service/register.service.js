@@ -1,7 +1,6 @@
 const User = require("../models/User");
 const StudioProfile = require("../models/StudioProfile");
 const PhotographerProfile = require("../models/PhotographerProfile");
-const { makeToken } = require("../utils/token");
 const AppError = require("../config/errors/AppError");
 
 async function assertEmailFree(email) {
@@ -32,6 +31,8 @@ async function registerStudioAdmin(formData) {
   });
 
   try {
+    // status defaults to "pending_review" (see StudioProfile schema) —
+    // this account cannot log in until a super admin approves it.
     const profile = await StudioProfile.create({
       userId: user._id,
       basicInfo,
@@ -40,8 +41,9 @@ async function registerStudioAdmin(formData) {
       documents: formData.documents,
     });
 
-    const token = makeToken(email);
-    return { user, profile, token };
+    // No token is issued here — registration no longer logs the user in.
+    // They must wait for super admin approval, then log in via OTP.
+    return { user, profile };
   } catch (err) {
     await User.deleteOne({ _id: user._id });
     throw err;
@@ -72,8 +74,7 @@ async function registerFreelancePhotographer(formData) {
       workArea: formData.workArea,
     });
 
-    const token = makeToken(email);
-    return { user, profile, token };
+    return { user, profile };
   } catch (err) {
     await User.deleteOne({ _id: user._id });
     throw err;

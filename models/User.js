@@ -6,7 +6,15 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     role: {
       type: String,
-      enum: ["super_admin", "admin", "user", "studio_admin", "freelance_photographer"],
+      enum: [
+        "super_admin",
+        "admin",
+        "user",
+        "studio_admin",
+        "freelance_photographer",
+        "studio_manager",
+        "studio_photographer",
+      ],
       default: "user",
     },
     deleteStatus: {

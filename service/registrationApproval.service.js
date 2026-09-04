@@ -1,11 +1,15 @@
 const User = require("../models/User");
 const StudioProfile = require("../models/StudioProfile");
 const PhotographerProfile = require("../models/PhotographerProfile");
+const StudioManagerProfile = require("../models/StudioManagerProfile");
+const StudioPhotographerProfile = require("../models/StudioPhotographerProfile");
 const AppError = require("../config/errors/AppError");
 
 const PROFILE_MODELS = {
   "studio-admin": { Model: StudioProfile, role: "studio_admin" },
   "freelance-photographer": { Model: PhotographerProfile, role: "freelance_photographer" },
+  "studio-manager": { Model: StudioManagerProfile, role: "studio_manager" },
+  "studio-photographer": { Model: StudioPhotographerProfile, role: "studio_photographer" },
 };
 
 function resolveModel(type) {
@@ -17,26 +21,42 @@ function resolveModel(type) {
 }
 
 async function listPendingRegistrations() {
-  const [pendingStudios, pendingPhotographers] = await Promise.all([
+  const [pendingStudios, pendingPhotographers, pendingManagers, pendingStudioPhotographers] = await Promise.all([
     StudioProfile.find({ status: "pending_review" }).populate("userId").sort({ createdAt: -1 }),
     PhotographerProfile.find({ status: "pending_review" }).populate("userId").sort({ createdAt: -1 }),
+    StudioManagerProfile.find({ status: "pending_review" }).populate("userId").populate("studioOwnerId").sort({ createdAt: -1 }),
+    StudioPhotographerProfile.find({ status: "pending_review" }).populate("userId").populate("studioOwnerId").sort({ createdAt: -1 }),
   ]);
 
-  const toEntry = (profile, type) => ({
-    profileId: profile._id,
-    type,
-    user: profile.userId,
-    basicInfo: profile.basicInfo,
-    kyc: profile.kyc,
-    details: type === "studio-admin" ? profile.studioDetails : profile.photographerDetails,
-    workOrDocuments: type === "studio-admin" ? profile.documents : profile.workArea,
-    status: profile.status,
-    createdAt: profile.createdAt,
-  });
+  const toEntry = (profile, type) => {
+    let details;
+    if (type === "studio-admin") details = profile.studioDetails;
+    else if (type === "freelance-photographer") details = profile.photographerDetails;
+    else if (type === "studio-manager") details = profile.managerDetails;
+    else details = profile.photographerDetails;
+
+    const workOrDocuments =
+      type === "studio-admin" ? profile.documents : type === "freelance-photographer" ? profile.workArea : {};
+
+    return {
+      profileId: profile._id,
+      type,
+      user: profile.userId,
+      studioOwner: profile.studioOwnerId || undefined,
+      basicInfo: profile.basicInfo,
+      kyc: profile.kyc,
+      details,
+      workOrDocuments,
+      status: profile.status,
+      createdAt: profile.createdAt,
+    };
+  };
 
   const combined = [
     ...pendingStudios.map((p) => toEntry(p, "studio-admin")),
     ...pendingPhotographers.map((p) => toEntry(p, "freelance-photographer")),
+    ...pendingManagers.map((p) => toEntry(p, "studio-manager")),
+    ...pendingStudioPhotographers.map((p) => toEntry(p, "studio-photographer")),
   ];
 
   combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

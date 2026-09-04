@@ -2,6 +2,34 @@ const userRepository = require("../repository/user.repository");
 const otpService = require("./otp.service");
 const { makeToken, nameFromEmail } = require("../utils/token");
 const AppError = require("../config/errors/AppError");
+const StudioProfile = require("../models/StudioProfile");
+const PhotographerProfile = require("../models/PhotographerProfile");
+const StudioManagerProfile = require("../models/StudioManagerProfile");
+const StudioPhotographerProfile = require("../models/StudioPhotographerProfile");
+
+// Roles that require a super-admin-approved profile before they're allowed
+// to log in. super_admin/admin/user have no profile gate.
+const PROFILE_MODEL_BY_ROLE = {
+  studio_admin: StudioProfile,
+  freelance_photographer: PhotographerProfile,
+  studio_manager: StudioManagerProfile,
+  studio_photographer: StudioPhotographerProfile,
+};
+
+async function assertApproved(user) {
+  const ProfileModel = PROFILE_MODEL_BY_ROLE[user.role];
+  if (!ProfileModel) {
+    return; // no approval gate for this role
+  }
+
+  const profile = await ProfileModel.findOne({ userId: user._id });
+  if (!profile || profile.status !== "active") {
+    throw new AppError(
+      "Your registration is still awaiting admin approval. We'll notify you by email once it's reviewed.",
+      403
+    );
+  }
+}
 
 async function sendLoginOtp(email) {
   if (!email || !otpService.isValidEmail(email)) {
@@ -20,15 +48,11 @@ async function verifyLoginOtp(email, otp) {
   const user = await userRepository.findByEmail(email);
 
   if (!user) {
-    // Email ownership is verified, but there's no account for it (this
-    // covers both brand-new users and users whose account was previously
-    // deleted). Do NOT auto-create an account here — issue a short-lived
-    // signup token instead. The frontend must send the user through
-    // onboarding and call completeSignup() with this token before an
-    // account is actually created.
     const signupToken = makeToken(email);
     return { needsSignup: true, email, signupToken };
   }
+
+  await assertApproved(user);
 
   const token = makeToken(email);
   return { needsSignup: false, user, token };
@@ -53,8 +77,6 @@ async function completeSignup(signupToken, profile) {
 
   const existing = await userRepository.findByEmail(email);
   if (existing) {
-    // Covers a race where the account was created between verify-otp and
-    // this call (e.g. two tabs completing signup at once).
     throw new AppError("An account with this email already exists", 409);
   }
 

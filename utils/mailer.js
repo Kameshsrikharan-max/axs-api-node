@@ -28,4 +28,33 @@ async function sendOtpEmail(toEmail, otp) {
   });
 }
 
-module.exports = { sendOtpEmail };
+const ROLE_LABELS = {
+  studio_manager: "Studio Manager",
+  studio_photographer: "Studio Photographer",
+};
+
+async function sendInviteEmail(toEmail, inviteLink, role, studioName) {
+  const roleLabel = ROLE_LABELS[role] || "team member";
+  const studioText = studioName ? ` at <strong>${studioName}</strong>` : "";
+
+  await transporter.sendMail({
+    from: `"Aperture X Studios" <${process.env.SMTP_USER}>`,
+    to: toEmail,
+    subject: `You've been invited to join as a ${roleLabel}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color:#0ea5e9;">You're invited</h2>
+        <p>You've been invited to join${studioText} as a <strong>${roleLabel}</strong> on Aperture X Studios.</p>
+        <p>
+          <a href="${inviteLink}" style="display:inline-block; padding: 12px 24px; background: #0ea5e9; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold;">
+            Accept Invite
+          </a>
+        </p>
+        <p style="color: #888; font-size: 12px;">This invite link expires in 7 days. If you weren't expecting this, you can ignore this email.</p>
+      </div>
+    `,
+    text: `You've been invited to join${studioText.replace(/<\/?strong>/g, "")} as a ${roleLabel}. Accept here: ${inviteLink} (expires in 7 days)`,
+  });
+}
+
+module.exports = { sendOtpEmail, sendInviteEmail };
