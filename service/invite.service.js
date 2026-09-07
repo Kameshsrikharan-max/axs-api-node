@@ -71,6 +71,32 @@ async function sendInvite(inviterUserId, { email, role }) {
   return { invite, inviteLink };
 }
 
+// Re-sends the SAME invite (same token, same link) — doesn't create a new
+// Invite document, just re-triggers the email and pushes the expiry out.
+// Only the original inviter can resend their own invite.
+async function resendInvite(inviterUserId, email) {
+  const normalizedEmail = String(email).trim().toLowerCase();
+
+  const invite = await Invite.findOne({ email: normalizedEmail, status: "pending" });
+  if (!invite) {
+    throw new AppError("No pending invite found for this email", 404);
+  }
+
+  if (String(invite.invitedBy) !== String(inviterUserId)) {
+    throw new AppError("You can only resend invites you sent yourself", 403);
+  }
+
+  // Refresh the expiry so a resend doesn't inherit an almost-expired window.
+  invite.expiresAt = new Date(Date.now() + INVITE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+  await invite.save();
+
+  const inviteLink = buildInviteLink(invite.token);
+
+  await sendInviteEmail(normalizedEmail, inviteLink, invite.role, invite.studioName);
+
+  return { invite, inviteLink };
+}
+
 async function getInviteByToken(token) {
   const invite = await Invite.findOne({ token });
 
@@ -150,4 +176,4 @@ async function registerViaInvite(token, formData) {
   }
 }
 
-module.exports = { sendInvite, getInviteByToken, registerViaInvite };
+module.exports = { sendInvite, resendInvite, getInviteByToken, registerViaInvite };

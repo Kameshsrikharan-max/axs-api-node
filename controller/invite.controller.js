@@ -15,6 +15,21 @@ async function sendInvite(req, res, next) {
   }
 }
 
+async function resendInvite(req, res, next) {
+  try {
+    const { email } = req.body;
+    const { invite, inviteLink } = await inviteService.resendInvite(req.user._id, email);
+    res.json({
+      success: true,
+      message: `Invite resent to ${invite.email}`,
+      invite,
+      inviteLink,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function getInvite(req, res, next) {
   try {
     const { token } = req.params;
@@ -47,4 +62,4 @@ async function acceptInvite(req, res, next) {
   }
 }
 
-module.exports = { sendInvite, getInvite, acceptInvite };
+module.exports = { sendInvite, resendInvite, getInvite, acceptInvite };

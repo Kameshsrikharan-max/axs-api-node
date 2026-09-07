@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Studio Admin sends an invite — authenticated + role-gated.
 router.post("/studio/invite", authenticate, requireStudioAdmin, inviteController.sendInvite);
+router.post("/studio/invite/resend", authenticate, requireStudioAdmin, inviteController.resendInvite);
 
 // Public — the invited person hasn't logged in yet.
 router.get("/invite/:token", inviteController.getInvite);
