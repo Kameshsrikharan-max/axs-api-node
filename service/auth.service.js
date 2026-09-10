@@ -7,8 +7,7 @@ const PhotographerProfile = require("../models/PhotographerProfile");
 const StudioManagerProfile = require("../models/StudioManagerProfile");
 const StudioPhotographerProfile = require("../models/StudioPhotographerProfile");
 
-// Roles that require a super-admin-approved profile before they're allowed
-// to log in. super_admin/admin/user have no profile gate.
+
 const PROFILE_MODEL_BY_ROLE = {
   studio_admin: StudioProfile,
   freelance_photographer: PhotographerProfile,
@@ -19,7 +18,7 @@ const PROFILE_MODEL_BY_ROLE = {
 async function assertApproved(user) {
   const ProfileModel = PROFILE_MODEL_BY_ROLE[user.role];
   if (!ProfileModel) {
-    return; // no approval gate for this role
+    return; 
   }
 
   const profile = await ProfileModel.findOne({ userId: user._id });

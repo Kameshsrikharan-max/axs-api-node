@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const studioManagerProfileSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
-    // The Studio Admin who sent the invite — this manager belongs to their studio.
+    
     studioOwnerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
     basicInfo: {

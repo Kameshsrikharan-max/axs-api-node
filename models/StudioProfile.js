@@ -33,9 +33,6 @@ const studioProfileSchema = new mongoose.Schema(
       state: { type: String, default: "" },
       country: { type: String, default: "" },
       postalCode: { type: String, default: "" },
-      // File uploads aren't wired up on the frontend yet (media is dropped
-      // before the autosave draft is serialized) — these expect URLs once
-      // a file-upload endpoint exists.
       media: { type: [String], default: [] },
       service: { type: String, default: "" },
       specializations: { type: [String], default: [] },
@@ -44,7 +41,6 @@ const studioProfileSchema = new mongoose.Schema(
     documents: {
       mapsLink: { type: String, default: "" },
       documentType: { type: String, default: "" },
-      // Same file-upload caveat as studioDetails.media above.
       documentFile: { type: String, default: null },
     },
 
