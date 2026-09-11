@@ -15,8 +15,6 @@ const PROFILE_MODEL_BY_ROLE = {
   studio_photographer: StudioPhotographerProfile,
 };
 
-// Frontend builds the actual clickable URL — this just needs a base to
-// hand back for convenience; CLIENT_ORIGIN falls back sensibly if unset.
 function buildInviteLink(token) {
   const base = process.env.CLIENT_ORIGIN || "http://localhost:5173";
   return `${base}/invite/${token}`;
@@ -62,8 +60,6 @@ async function sendInvite(inviterUserId, { email, role }) {
   try {
     await sendInviteEmail(normalizedEmail, inviteLink, role, studioName);
   } catch (err) {
-    // Roll back the invite if the email genuinely never went out, so the
-    // person isn't left with a dead, un-emailed invite blocking re-invites.
     await Invite.deleteOne({ _id: invite._id });
     throw new AppError("Failed to send invite email. Please try again.", 502);
   }
@@ -71,9 +67,7 @@ async function sendInvite(inviterUserId, { email, role }) {
   return { invite, inviteLink };
 }
 
-// Re-sends the SAME invite (same token, same link) — doesn't create a new
-// Invite document, just re-triggers the email and pushes the expiry out.
-// Only the original inviter can resend their own invite.
+
 async function resendInvite(inviterUserId, email) {
   const normalizedEmail = String(email).trim().toLowerCase();
 
@@ -86,7 +80,6 @@ async function resendInvite(inviterUserId, email) {
     throw new AppError("You can only resend invites you sent yourself", 403);
   }
 
-  // Refresh the expiry so a resend doesn't inherit an almost-expired window.
   invite.expiresAt = new Date(Date.now() + INVITE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
   await invite.save();
 
@@ -133,8 +126,6 @@ async function registerViaInvite(token, formData) {
     throw new AppError("Basic info is required", 400);
   }
 
-  // The invite's email is authoritative — ignore whatever the form sends
-  // for email so an invite can't be redeemed for a different address.
   const email = invite.email;
 
   const existingUser = await User.findOne({ email });

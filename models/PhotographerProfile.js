@@ -46,7 +46,6 @@ const photographerProfileSchema = new mongoose.Schema(
       mapsLink: { type: String, default: "" },
       travelRadius: { type: String, default: "" },
       documentType: { type: String, default: "" },
-      // Same file-upload caveat as photographerDetails.media above.
       documentFile: { type: String, default: null },
     },
 

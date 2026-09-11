@@ -13,6 +13,7 @@ app.use(express.json());
 connectDB();
 
 app.use("/", routes);
+app.use("/", require("./route/users.routes"));
 
 app.use(errorHandler);
 
