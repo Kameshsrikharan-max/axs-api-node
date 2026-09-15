@@ -4,6 +4,7 @@ const deleteRequestRoutes = require("./deleteRequest.routes");
 const registerRoutes = require("./register.routes");
 const registrationApprovalRoutes = require("./registrationApproval.routes");
 const inviteRoutes = require("./invite.routes");
+const notificationRoutes = require("./notification.routes");
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ router.use("/", deleteRequestRoutes);
 router.use("/", registerRoutes);
 router.use("/", registrationApprovalRoutes);
 router.use("/", inviteRoutes);
+router.use("/", notificationRoutes);
 // As you add more resources (e.g. studios, events), mount their routers here:
 // router.use("/events", eventRoutes);
 

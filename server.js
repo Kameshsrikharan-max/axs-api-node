@@ -12,6 +12,10 @@ app.use(express.json());
 
 connectDB();
 
+// Public/unauthenticated routes go first, so they're resolved before
+// any auth middleware attached inside `routes` gets a chance to run.
+app.use("/", require("./route/receipt.routes.js"));
+
 app.use("/", routes);
 app.use("/", require("./route/users.routes"));
 
