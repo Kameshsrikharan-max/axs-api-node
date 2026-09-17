@@ -31,8 +31,6 @@ async function registerStudioAdmin(formData) {
   });
 
   try {
-    // status defaults to "pending_review" (see StudioProfile schema) —
-    // this account cannot log in until a super admin approves it.
     const profile = await StudioProfile.create({
       userId: user._id,
       basicInfo,
@@ -41,8 +39,6 @@ async function registerStudioAdmin(formData) {
       documents: formData.documents,
     });
 
-    // No token is issued here — registration no longer logs the user in.
-    // They must wait for super admin approval, then log in via OTP.
     return { user, profile };
   } catch (err) {
     await User.deleteOne({ _id: user._id });

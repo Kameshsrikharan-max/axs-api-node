@@ -8,15 +8,10 @@ function httpError(message, status) {
 
 async function postMessage(payload) {
   if (!payload.eventId) throw httpError("eventId is required", 400);
-  if (!payload.senderEmail) throw httpError("senderEmail is required", 400); // now guaranteed by controller, kept as a safety net
-  if (!payload.senderName) throw httpError("senderName is required", 400);   // same
+  if (!payload.senderEmail) throw httpError("senderEmail is required", 400); 
+  if (!payload.senderName) throw httpError("senderName is required", 400);  
   if (!payload.text || !payload.text.trim()) throw httpError("text is required", 400);
 
-
-  // No backend-persisted assignment data exists yet (TeamAssignmentPage
-  // only stores assignments in sessionStorage). Authorization here relies
-  // on the requireAuthenticated middleware at the route level — any logged-in
-  // user can post. Revisit once assignments are persisted to Mongo.
 
   return messageRepository.create({
     eventId: payload.eventId,

@@ -32,6 +32,24 @@ async function deleteAllForEvent(eventId) {
   return Message.deleteMany({ eventId });
 }
 
+
+async function findLatestForEvents(eventIds) {
+  if (!Array.isArray(eventIds) || eventIds.length === 0) return [];
+
+  return Message.aggregate([
+    { $match: { eventId: { $in: eventIds }, deleted: false } },
+    { $sort: { createdAt: -1 } },
+    {
+      $group: {
+        _id: "$eventId",
+        lastMessageAt: { $first: "$createdAt" },
+        lastMessageId: { $first: "$_id" },
+        lastSenderEmail: { $first: "$senderEmail" },
+      },
+    },
+  ]);
+}
+
 module.exports = {
   create,
   findByEvent,
@@ -40,4 +58,5 @@ module.exports = {
   softDeleteById,
   hardDeleteById,
   deleteAllForEvent,
+  findLatestForEvents,
 };

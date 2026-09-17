@@ -61,7 +61,7 @@ async function loadProfilesForUsers(users) {
   return profileMap;
 }
 
-// Studio name lookup for manager/photographer profiles, keyed by studioOwnerId.
+
 async function loadStudioNames(studioOwnerIds) {
   const uniqueIds = [...new Set(studioOwnerIds.map(String))];
   if (uniqueIds.length === 0) return new Map();
@@ -130,7 +130,7 @@ async function listStudioUsers(requester) {
 
     const [scopedUsers, freelanceUsers] = await Promise.all([
       User.find({ _id: { $in: scopedUserIds } }),
-      User.find({ role: "freelance_photographer" }), // not studio-scoped yet, see note above
+      User.find({ role: "freelance_photographer" }),
     ]);
 
     const users = [...scopedUsers, ...freelanceUsers].sort(

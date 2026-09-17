@@ -43,7 +43,7 @@ const cleanAssignedMembers = (members = []) => {
   return members
     .filter((member) => member && member.email)
     .map((member) => ({
-      // Supports the current frontend `id` field and the correct `userId` field.
+    
       userId: member.userId || member.id || undefined,
       name: String(member.name || "").trim(),
       email: String(member.email || "").trim().toLowerCase(),
@@ -90,8 +90,7 @@ async function list(req, res, next) {
 
     const isPhotographer = PHOTOGRAPHER_ROLES.includes(req.user.role);
 
-    // Photographers can only see events where they are assigned.
-    // Email support keeps previously saved assignments working too.
+
     const filter = isPhotographer
       ? {
           $or: [
@@ -209,7 +208,7 @@ async function assignTeam(req, res, next) {
 
     await event.save();
 
-    // Notify only newly assigned people; saving changes again will not create duplicates.
+    
     const newlyAssignedMembers = assignedMembersList.filter(
       (member) => !previousEmails.has(member.email)
     );

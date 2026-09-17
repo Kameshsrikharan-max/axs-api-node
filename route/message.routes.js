@@ -9,15 +9,15 @@ router.use(authenticate);
 
 // Post a new message to an event's thread. senderEmail/senderName/senderRole
 // come from req.user (see message.controller.js), never from the body.
-router.post("/messages", messageController.create);
+router.post("/studio/messages", messageController.create);
 
 // Fetch a single event's thread, oldest first.
-router.get("/messages/:eventId", messageController.listByEvent);
+router.get("/studio/messages/:eventId", messageController.listByEvent);
 
 // Edit a message (must belong to the requester).
-router.patch("/messages/:id", messageController.update);
+router.patch("/studio/messages/:id", messageController.update);
 
 // Delete a message (own message, or super_admin — see message.service.js).
-router.delete("/messages/:id", messageController.remove);
+router.delete("/studio/messages/:id", messageController.remove);
 
 module.exports = router;

@@ -8,8 +8,6 @@ function makeToken(email) {
   return Buffer.from(`${email}:${Date.now()}:${crypto.randomBytes(8).toString("hex")}`).toString("base64");
 }
 
-// Unrelated to makeToken above — this is a URL-safe random token for
-// invite links, not tied to an email or decodable like the auth tokens.
 function generateInviteToken() {
   return crypto.randomBytes(24).toString("hex");
 }
