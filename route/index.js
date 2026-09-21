@@ -7,6 +7,7 @@ const inviteRoutes = require("./invite.routes");
 const notificationRoutes = require("./notification.routes");
 const messageRoutes = require("./message.routes");
 const eventRoutes = require("./event.routes");
+const availabilityRoutes = require("./availability.routes");
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/", inviteRoutes);
 router.use("/", notificationRoutes);
 router.use("/", messageRoutes);
 router.use("/", eventRoutes);
+router.use("/", availabilityRoutes);
 
 module.exports = router;
