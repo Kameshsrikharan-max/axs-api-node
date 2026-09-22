@@ -8,6 +8,7 @@ const notificationRoutes = require("./notification.routes");
 const messageRoutes = require("./message.routes");
 const eventRoutes = require("./event.routes");
 const availabilityRoutes = require("./availability.routes");
+const equipmentChecklistRoutes = require("./equipmentChecklist.routes");
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.use("/", notificationRoutes);
 router.use("/", messageRoutes);
 router.use("/", eventRoutes);
 router.use("/", availabilityRoutes);
+router.use("/", equipmentChecklistRoutes);
 
 module.exports = router;
