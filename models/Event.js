@@ -7,8 +7,8 @@ const assignedMemberSchema = new mongoose.Schema(
     email: { type: String, lowercase: true, trim: true },
     mobile: String,
     city: String,
-    role: String,      
-    assignRole: String, 
+    role: String,
+    assignRole: String,
     service: String,
     status: { type: String, default: "Confirmed" },
   },
@@ -45,6 +45,14 @@ const eventSchema = new mongoose.Schema(
     albumData: { type: mongoose.Schema.Types.Mixed, default: {} },
     assignedMembersList: { type: [assignedMemberSchema], default: [] },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+    // Pre-event check-in tracking
+    checkinStatus: {
+      type: String,
+      enum: ["not_sent", "sent", "expired"],
+      default: "not_sent",
+    },
+    checkinEmailSentAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

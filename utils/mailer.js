@@ -146,4 +146,81 @@ async function sendReceiptEmail(toEmail, receipt) {
   });
 }
 
-module.exports = { sendOtpEmail, sendInviteEmail, sendReceiptEmail };
+/**
+ * Sent to an assigned photographer 1 hour before the event starts, containing
+ * the check-in link. `event` is a mongoose Event document (or plain object)
+ * with at least name/date/time/address/city.
+ */
+async function sendCheckInEmail(toEmail, photographerName, event, checkinLink) {
+  const greeting = photographerName ? `Hi ${photographerName},` : "Hi,";
+  const venue = [event.address, event.city].filter(Boolean).join(", ");
+
+  await transporter.sendMail({
+    from: `"Aperture X Studios" <${process.env.SMTP_USER}>`,
+    to: toEmail,
+    subject: `Check in for "${event.name}" — starts in 1 hour`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color:#0ea5e9; margin-bottom: 4px;">Your event starts in 1 hour</h2>
+        <p style="color:#334155;">${greeting}</p>
+        <p style="color:#334155;">Please check in once you've arrived at the venue for <strong>${event.name}</strong>.</p>
+
+        <div style="border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin:20px 0; font-size:13px; color:#334155;">
+          <div style="padding:4px 0;"><strong>Event:</strong> ${event.name}</div>
+          <div style="padding:4px 0;"><strong>Time:</strong> ${event.date} · ${event.time}</div>
+          ${venue ? `<div style="padding:4px 0;"><strong>Venue:</strong> ${venue}</div>` : ""}
+        </div>
+
+        <p>
+          <a href="${checkinLink}" style="display:inline-block; padding: 12px 24px; background: #0ea5e9; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold;">
+            Check In Now
+          </a>
+        </p>
+
+        <p style="color:#888; font-size:12px;">This link is only active from now until the event's start time. It will stop working once the event begins, so please check in as soon as you arrive.</p>
+      </div>
+    `,
+    text: `${greeting} Please check in for "${event.name}" (${event.date} ${event.time}) once you've arrived: ${checkinLink}. This link expires when the event starts.`,
+  });
+}
+
+/**
+ * Sent to studio_admin / super_admin users the moment a photographer submits
+ * their check-in.
+ */
+async function sendCheckInAlertEmail(toEmail, event, checkIn) {
+  const submittedAt = new Date(checkIn.submittedAt).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const mapsUrl = `https://www.google.com/maps?q=${checkIn.location.lat},${checkIn.location.lng}`;
+
+  await transporter.sendMail({
+    from: `"Aperture X Studios" <${process.env.SMTP_USER}>`,
+    to: toEmail,
+    subject: `✓ ${checkIn.photographerName || checkIn.photographerEmail} checked in — ${event.name}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2 style="color:#16a34a; margin-bottom: 4px;">Photographer checked in</h2>
+        <div style="border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin:20px 0; font-size:13px; color:#334155;">
+          <div style="padding:4px 0;"><strong>Event:</strong> ${event.name}</div>
+          <div style="padding:4px 0;"><strong>Photographer:</strong> ${checkIn.photographerName || checkIn.photographerEmail}</div>
+          <div style="padding:4px 0;"><strong>Checked in at:</strong> ${submittedAt}</div>
+          <div style="padding:4px 0;"><strong>Location:</strong> <a href="${mapsUrl}">${checkIn.location.lat.toFixed(5)}, ${checkIn.location.lng.toFixed(5)}</a></div>
+        </div>
+        <img src="${checkIn.photo}" alt="Check-in photo" style="max-width:100%; border-radius:12px; border:1px solid #e2e8f0;" />
+      </div>
+    `,
+    text: `${checkIn.photographerName || checkIn.photographerEmail} checked in for "${event.name}" at ${submittedAt}. Location: ${mapsUrl}`,
+  });
+}
+
+module.exports = {
+  sendOtpEmail,
+  sendInviteEmail,
+  sendReceiptEmail,
+  sendCheckInEmail,
+  sendCheckInAlertEmail,
+};

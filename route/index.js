@@ -9,6 +9,7 @@ const messageRoutes = require("./message.routes");
 const eventRoutes = require("./event.routes");
 const availabilityRoutes = require("./availability.routes");
 const equipmentChecklistRoutes = require("./equipmentChecklist.routes");
+const checkinRoutes = require("./checkin.routes");
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use("/", messageRoutes);
 router.use("/", eventRoutes);
 router.use("/", availabilityRoutes);
 router.use("/", equipmentChecklistRoutes);
+router.use("/", checkinRoutes);
 
 module.exports = router;
