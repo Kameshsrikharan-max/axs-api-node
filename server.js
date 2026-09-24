@@ -8,13 +8,17 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_ORIGIN }));
-app.use(express.json());
+app.use(express.json({ limit: "8mb" }));
 
 connectDB();
+
+const startCheckinScheduler = require("./cron/checkinScheduler");
+startCheckinScheduler();
 
 // Public/unauthenticated routes go first, so they're resolved before
 // any auth middleware attached inside `routes` gets a chance to run.
 app.use("/", require("./route/receipt.routes.js"));
+app.use("/", require("./route/checkin.routes.js"));
 
 app.use("/", routes);
 app.use("/", require("./route/users.routes"));
