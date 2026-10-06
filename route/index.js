@@ -9,9 +9,11 @@ const messageRoutes = require("./message.routes");
 const eventRoutes = require("./event.routes");
 const availabilityRoutes = require("./availability.routes");
 const equipmentChecklistRoutes = require("./equipmentChecklist.routes");
+const subscriptionRoutes = require("./subscription.routes");
 
 const router = express.Router();
 
+router.use("/subscription", subscriptionRoutes);
 router.use("/", authRoutes);
 router.use("/", deleteRequestRoutes);
 router.use("/", registerRoutes);
