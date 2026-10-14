@@ -5,10 +5,15 @@ const cors = require("cors");
 const connectDB = require("./config/db/connection");
 const routes = require("./route");
 const errorHandler = require("./middleware/errorHandler");
+const auditTrail = require("./middleware/auditTrail");
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_ORIGIN }));
 app.use(express.json({ limit: "8mb" }));
+
+// Logs every mutating request (POST/PUT/PATCH/DELETE) that matches a rule,
+// after the response finishes. Must come after express.json so body is parsed.
+app.use(auditTrail);
 
 connectDB();
 
@@ -20,6 +25,7 @@ startCheckinScheduler();
 app.use("/", require("./route/receipt.routes.js"));
 app.use("/", require("./route/checkin.routes.js"));
 
+app.use("/", require("./route/auditLog.routes"));
 app.use("/", routes);
 app.use("/", require("./route/users.routes"));
 
